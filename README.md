@@ -3,6 +3,9 @@ yumi
 
 Minimalistic Android view-injection library.
 
+*yumi* is very small library designed to simplify Activity setup process in
+Android applications.
+Only 15k of source code (or 8k of compiled classes) without any external dependencies.
 
 Inject view into activity field
 -------------------------------
