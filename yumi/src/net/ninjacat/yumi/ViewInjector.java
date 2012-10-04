@@ -17,7 +17,6 @@
  *********************************************************************************/
 package net.ninjacat.yumi;
 
-import android.app.Activity;
 import android.view.View;
 
 class ViewInjector {
@@ -25,12 +24,12 @@ class ViewInjector {
     private static final String INVALID_VIEW_ID = "Invalid view id (%s) in @%s for [%s]";
     private static final String INVALID_VIEW_TAG = "Invalid tag (%s) in @%s for [%s]";
 
-    protected View findView(Activity parent, int viewId, String tag) {
+    protected View findView(View parent, int viewId, String tag) {
         View v = null;
         if (viewId != -1) {
             v = parent.findViewById(viewId);
         } else if (!EMPTY_TAG.equals(tag)) {
-            v = parent.getWindow().getDecorView().findViewWithTag(tag);
+            v = parent.findViewWithTag(tag);
         }
         return v;
     }

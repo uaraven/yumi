@@ -3,12 +3,15 @@ yumi
 
 Minimalistic Android view-injection library.
 
-*yumi* is very small library designed to simplify Activity setup process in
+*yumi* is a very small library designed to simplify Activity setup process in
 Android applications.
 Only 15k of source code (or 8k of compiled classes) without any external dependencies.
 
-Inject view into activity field
--------------------------------
+How to use
+----------
+
+Inject views into object's fields:
+
 ```java
 @AttachTo(R.id.view_id)
 private TextView someView;
@@ -16,8 +19,7 @@ private TextView someView;
 private TextView warningText;
 ```
 
-Inject on click listener
-------------------------
+Inject on click listeners:
 ```java
 @HandleClickOn(R.id.button)
 void buttonClicked(Button btn) {}
@@ -26,18 +28,24 @@ void buttonClicked(Button btn) {}
 void layoutClicked(View view) {}
 ```
 
-Inject content view into Activity
----------------------------------
+Inject content view into Activity:
+
 ```java
 @Layout(R.layout.main_layout)
 class MainActivity extends Activity {}
 ```
 
-Initialize everything
----------------------
+Do it all at once
 ```java
 void onCreate(...) {
     super.onCreate(...);
     Injector.injectActivity(this);
+}
+```
+
+Or, if you're using Fragment or just need to inject fields and listeners with a View:
+```java
+void init(View v) {
+    Injector.inject(v, this);
 }
 ```

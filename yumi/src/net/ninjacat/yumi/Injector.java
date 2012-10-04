@@ -18,13 +18,33 @@
 package net.ninjacat.yumi;
 
 import android.app.Activity;
+import android.view.View;
 
 public class Injector {
 
+    /**
+     * Attach fields annotated with {@link AttachTo} to layout views. Configure OnClickListener dispatcher to
+     * send click events to methods annotated with {@link HandleClickOn}
+     *
+     * @param view   parent view, in which to search for views to inject
+     * @param target object, which fields and methods to perform injection into
+     */
+    public static void inject(View view, Object target) {
+        injectFields(view, target);
+        injectListeners(view, target);
+    }
+
+    /**
+     * Set content view for activity (if activity is annotated with {@link Layout}), then
+     * attach fields annotated with {@link AttachTo} to layout views. Configure OnClickListener dispatcher to
+     * send click events to methods annotated with {@link HandleClickOn}
+     *
+     * @param activity - activity on which to perform injection
+     */
     public static void injectActivity(Activity activity) {
         injectLayout(activity);
-        injectFields(activity);
-        injectListeners(activity);
+        View rootView = activity.getWindow().getDecorView();
+        inject(rootView, activity);
     }
 
     private static void injectLayout(Activity activity) {
@@ -32,14 +52,14 @@ public class Injector {
         injector.inject();
     }
 
-    public static void injectFields(Activity activity) {
-        FieldInjector injector = new FieldInjector(activity);
+    private static void injectFields(View view, Object target) {
+        FieldInjector injector = new FieldInjector(view, target);
 
         injector.attachViews();
     }
 
-    public static void injectListeners(Activity activity) {
-        ClickDispatcher dispatcher = new ClickDispatcher(activity);
+    private static void injectListeners(View view, Object target) {
+        ClickDispatcher dispatcher = new ClickDispatcher(view, target);
         dispatcher.injectListeners();
     }
 }

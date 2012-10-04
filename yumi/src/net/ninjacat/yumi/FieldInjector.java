@@ -17,7 +17,6 @@
  *********************************************************************************/
 package net.ninjacat.yumi;
 
-import android.app.Activity;
 import android.view.View;
 
 import java.lang.reflect.Field;
@@ -26,11 +25,14 @@ import java.util.List;
 
 final class FieldInjector extends ViewInjector {
 
-    private final Activity activity;
     private static final String CANNOT_ATTACH_TO_NON_VIEW = "Cannot attach view to field (%s:%s) not descending from android.view.View";
+    private View view;
+    private Object target;
 
-    FieldInjector(Activity activity) {
-        this.activity = activity;
+
+    public FieldInjector(View view, Object target) {
+        this.view = view;
+        this.target = target;
     }
 
     void attachViews() {
@@ -40,14 +42,14 @@ final class FieldInjector extends ViewInjector {
             AttachTo attachAnnotation = field.getAnnotation(AttachTo.class);
             int viewId = attachAnnotation.value();
             String tag = attachAnnotation.tag();
-            View v = findView(activity, viewId, tag);
+            View v = findView(view, viewId, tag);
             validateView(v, viewId, tag, AttachTo.class.getSimpleName(), field.getName());
             if (!(View.class.isAssignableFrom(field.getType()))) {
                 throw new IllegalStateException(String.format(CANNOT_ATTACH_TO_NON_VIEW, field.getName(), field.getType().getSimpleName()));
             }
             try {
                 field.setAccessible(true);
-                field.set(activity, v);
+                field.set(target, v);
             } catch (IllegalAccessException e) {
                 throw new IllegalStateException(e);
             }
@@ -56,7 +58,7 @@ final class FieldInjector extends ViewInjector {
 
 
     private List<Field> getInjectableFields() {
-        Field[] fields = activity.getClass().getDeclaredFields();
+        Field[] fields = target.getClass().getDeclaredFields();
         List<Field> result = new ArrayList<Field>();
         for (Field field : fields) {
             if (field.isAnnotationPresent(AttachTo.class)) {

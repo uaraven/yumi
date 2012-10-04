@@ -17,7 +17,6 @@
  *********************************************************************************/
 package net.ninjacat.yumi;
 
-import android.app.Activity;
 import android.view.View;
 
 import java.lang.reflect.Method;
@@ -31,10 +30,12 @@ final class ClickDispatcher extends ViewInjector implements View.OnClickListener
     private static final String CANNOT_DISPATCH_CLICK = "Failed to dispatch click to %s";
 
     private final HashMap<View, Method> clickListeners;
-    private final Activity activity;
+    private final View view;
+    private final Object target;
 
-    public ClickDispatcher(Activity activity) {
-        this.activity = activity;
+    public ClickDispatcher(View view, Object target) {
+        this.view = view;
+        this.target = target;
         clickListeners = new HashMap<View, Method>();
     }
 
@@ -45,7 +46,7 @@ final class ClickDispatcher extends ViewInjector implements View.OnClickListener
             HandleClickOn handleAnnotation = method.getAnnotation(HandleClickOn.class);
             int viewId = handleAnnotation.value();
             String tag = handleAnnotation.tag();
-            View v = findView(activity, viewId, tag);
+            View v = findView(view, viewId, tag);
             validateView(v, viewId, tag, HandleClickOn.class.getSimpleName(), method.getName());
             addListener(v, method);
             v.setOnClickListener(this);
@@ -65,7 +66,7 @@ final class ClickDispatcher extends ViewInjector implements View.OnClickListener
     }
 
     private List<Method> getAttachableMethods() {
-        Method[] methods = activity.getClass().getDeclaredMethods();
+        Method[] methods = target.getClass().getDeclaredMethods();
         List<Method> result = new ArrayList<Method>();
         for (Method method : methods) {
             if (method.isAnnotationPresent(HandleClickOn.class)) {
@@ -75,13 +76,12 @@ final class ClickDispatcher extends ViewInjector implements View.OnClickListener
         return result;
     }
 
-
     @Override
     public void onClick(View view) {
         if (clickListeners.containsKey(view)) {
             Method method = clickListeners.get(view);
             try {
-                method.invoke(activity, view);
+                method.invoke(target, view);
             } catch (Exception e) {
                 throw new IllegalStateException(String.format(CANNOT_DISPATCH_CLICK, method.toGenericString()), e);
             }
