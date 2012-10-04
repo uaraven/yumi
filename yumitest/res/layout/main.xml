@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+        >
+    <TextView
+            android:tag="text1"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Hello World, ACTIVITY_ENTRY_NAME"/>
+    <EditText
+            android:id="@+id/editor"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Hello World, Editor"/>
+    <Button
+            android:tag="btn"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Click me"/>
+    <Button
+            android:id="@+id/button"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Click me too"/>
+</LinearLayout>
+
