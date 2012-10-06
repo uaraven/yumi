@@ -8,8 +8,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import net.ninjacat.yumi.AttachTo;
 import net.ninjacat.yumi.HandleClickOn;
-import net.ninjacat.yumi.Injector;
 import net.ninjacat.yumi.Layout;
+import net.ninjacat.yumi.Yumi;
 
 @Layout(R.layout.main)
 public class YumiTestActivity extends Activity {
@@ -22,7 +22,7 @@ public class YumiTestActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Injector.injectActivity(this);
+        Yumi.injectActivity(this);
 
         textView.setText("New text");
         editor.setText("Edit this, please");

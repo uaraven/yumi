@@ -20,7 +20,7 @@ package net.ninjacat.yumi;
 import android.app.Activity;
 import android.view.View;
 
-public class Injector {
+public class Yumi {
 
     /**
      * Attach fields annotated with {@link AttachTo} to layout views. Configure OnClickListener dispatcher to

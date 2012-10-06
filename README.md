@@ -39,13 +39,13 @@ Do it all at once
 ```java
 void onCreate(...) {
     super.onCreate(...);
-    Injector.injectActivity(this);
+    Yumi.injectActivity(this);
 }
 ```
 
 Or, if you're using Fragment or just need to inject fields and listeners with a View:
 ```java
 void init(View v) {
-    Injector.inject(v, this);
+    Yumi.inject(v, this);
 }
 ```
