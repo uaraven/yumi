@@ -61,5 +61,7 @@ public class Yumi {
     private static void injectListeners(View view, Object target) {
         ClickDispatcher dispatcher = new ClickDispatcher(view, target);
         dispatcher.injectListeners();
+        CheckedDispatcher checkedDispatcher = new CheckedDispatcher(view, target);
+        checkedDispatcher.injectListeners();
     }
 }

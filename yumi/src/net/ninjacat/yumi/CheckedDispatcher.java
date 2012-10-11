@@ -18,58 +18,64 @@
 package net.ninjacat.yumi;
 
 import android.view.View;
+import android.widget.CompoundButton;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-final class ClickDispatcher extends ViewInjector implements View.OnClickListener {
+final class CheckedDispatcher extends ViewInjector implements CompoundButton.OnCheckedChangeListener {
 
-    private static final String INVALID_METHOD_SIGNATURE = "Method signature [%s] does not match required signature [void methodName(View)]";
+    private static final String INVALID_METHOD_SIGNATURE = "Method signature [%s] does not match required signature [void methodName(CounpondButton, boolean)]";
     private static final String CANNOT_DISPATCH_CLICK = "Failed to dispatch click to %s";
+    private static final String INVALID_VIEW_TYPE = "Supplied view is not CompoundButton and cannot be handled by [%s]";
 
-    private final HashMap<View, Method> clickListeners;
+    private final HashMap<CompoundButton, Method> checkedChangeListeners;
     private final View view;
     private final Object target;
 
-    ClickDispatcher(View view, Object target) {
+    CheckedDispatcher(View view, Object target) {
         this.view = view;
         this.target = target;
-        clickListeners = new HashMap<View, Method>();
+        checkedChangeListeners = new HashMap<CompoundButton, Method>();
     }
 
     public void injectListeners() {
         List<Method> methods = getAttachableMethods();
         for (Method method : methods) {
             validateSignature(method);
-            HandleClickOn handleAnnotation = method.getAnnotation(HandleClickOn.class);
+            HandleCheckedChange handleAnnotation = method.getAnnotation(HandleCheckedChange.class);
             int viewId = handleAnnotation.value();
             String tag = handleAnnotation.tag();
             View v = findView(view, viewId, tag);
-            validateView(v, viewId, tag, HandleClickOn.class.getSimpleName(), method.getName());
-            addListener(v, method);
-            v.setOnClickListener(this);
+            if (!(v instanceof CompoundButton)) {
+                throw new IllegalArgumentException(String.format(INVALID_VIEW_TYPE, method.toGenericString()));
+            }
+            CompoundButton cb = (CompoundButton) v;
+            validateView(cb, viewId, tag, HandleCheckedChange.class.getSimpleName(), method.getName());
+            addListener(cb, method);
+            cb.setOnCheckedChangeListener(this);
         }
     }
 
     private void validateSignature(Method method) {
         Class<?>[] params = method.getParameterTypes();
-        if (params.length != 1 || !View.class.isAssignableFrom(params[0]) ||
-                !method.getReturnType().equals(void.class)) {
+        if ((params.length != 2) || !CompoundButton.class.isAssignableFrom(params[0]) ||
+                !boolean.class.isAssignableFrom(params[1]) || !method.getReturnType().equals(void.class)) {
             throw new IllegalArgumentException(String.format(INVALID_METHOD_SIGNATURE, method.toGenericString()));
         }
     }
 
-    private void addListener(View view, Method method) {
-        clickListeners.put(view, method);
+    private void addListener(CompoundButton view, Method method) {
+        checkedChangeListeners.put(view, method);
     }
 
     private List<Method> getAttachableMethods() {
         Method[] methods = target.getClass().getDeclaredMethods();
         List<Method> result = new ArrayList<Method>();
         for (Method method : methods) {
-            if (method.isAnnotationPresent(HandleClickOn.class)) {
+            if (method.isAnnotationPresent(HandleCheckedChange.class)) {
                 result.add(method);
             }
         }
@@ -77,11 +83,11 @@ final class ClickDispatcher extends ViewInjector implements View.OnClickListener
     }
 
     @Override
-    public void onClick(View view) {
-        if (clickListeners.containsKey(view)) {
-            Method method = clickListeners.get(view);
+    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+        if (checkedChangeListeners.containsKey(compoundButton)) {
+            Method method = checkedChangeListeners.get(compoundButton);
             try {
-                method.invoke(target, view);
+                method.invoke(target, compoundButton, b);
             } catch (Exception e) {
                 throw new IllegalStateException(String.format(CANNOT_DISPATCH_CLICK, method.toGenericString()), e);
             }
